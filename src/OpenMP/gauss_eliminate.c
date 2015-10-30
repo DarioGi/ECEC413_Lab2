@@ -17,6 +17,9 @@
 #define MIN_NUMBER 2
 #define MAX_NUMBER 50
 #define NUM_THREADS 16
+#define TRUE 1
+#define FALSE !TRUE
+
 extern int compute_gold(float*, const float*, unsigned int);
 Matrix allocate_matrix(int num_rows, int num_columns, int init);
 void gauss_eliminate_using_openmp(const Matrix, Matrix);
@@ -24,16 +27,33 @@ int perform_simple_check(const Matrix);
 void print_matrix(const Matrix);
 float get_random_number(int, int);
 int check_results(float *, float *, unsigned int, float);
-
+int testing = TRUE;
+static int num_of_threads = 16;
 
 int main(int argc, char** argv) 
 {
-	if ( argc > 1 )
+	if ( !testing )
 	{
-		printf("Error. This program accepts no arguments. \n");
-		exit(0);
-	}	
-
+		num_of_threads = NUM_THREADS;
+		if ( argc > 1 )
+		{
+			printf("Error. This program accepts no arguments. \n");
+			exit(0);
+		}	
+	}
+	else
+	{
+		if ( argc != 2 )
+		{
+			printf("Input num of threads. \n");
+			exit(0);
+		}
+		else
+		{
+			num_of_threads = atoi(argv[1]);
+			printf("Using %d number of threads.", num_of_threads);
+		}	
+	}
 	/* Allocate and initialize the matrices. */
 	Matrix  A;                                              /* The N x N input matrix. */
 	Matrix  U;                                              /* The upper triangular matrix to be computed. */
@@ -90,7 +110,7 @@ int main(int argc, char** argv)
 void gauss_eliminate_using_openmp(const Matrix A, Matrix U)                 
 {
 	unsigned int i, j, k;
-#pragma omp parallel private(i,j,k) shared(U,A) num_threads(NUM_THREADS)
+#pragma omp parallel private(i,j,k) shared(U,A) num_threads(num_of_threads)
 	/* Copy the contents of the A matrix into the U matrix.*/
 #pragma omp for 
     for ( i = 0; i < num_elements; i++ )
@@ -100,7 +120,7 @@ void gauss_eliminate_using_openmp(const Matrix A, Matrix U)
 #pragma omp barrier
     for ( k = 0; k < num_elements; k++ )
 	{             /* Perform Gaussian elimination in place on the U matrix. */
-#pragma omp for reduction(/: division)
+#pragma omp for reduction(/:division)
         for ( j = (k + 1); j < num_elements; j++ )
 		{   /* Reduce the current row. */
 			if ( U[num_elements*k + k] == 0 )
