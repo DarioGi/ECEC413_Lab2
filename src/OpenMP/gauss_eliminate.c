@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 		num_of_threads = NUM_THREADS;
 		if ( argc > 1 )
 		{
-			printf("Error. This program accepts no arguments. \n");
+			printf("Error. This program accepts no arguments.\n");
 			exit(0);
 		}	
 	}
@@ -127,13 +127,11 @@ void gauss_eliminate_using_openmp(const Matrix matA, Matrix matU)
     for ( i = 0; i < num_elements; i++ )
         for ( j = 0; j < num_elements; j++ )
             U[num_elements * i + j] = A[num_elements*i + j];		
-}
-#pragma omp parallel private(i, j, k,) shared(U, A, num_elements) num_threads(num_of_threads)
-{
+
     for ( k = 0; k < num_elements; k++ )
 	{          
 	/* Perform Gaussian elimination in place on the U matrix. */
-#pragma omp for 
+#pragma omp for
         for ( j = (k + 1); j < num_elements; j++ )
 		{   /* Reduce the current row. */
 			if ( U[num_elements*k + k] == 0 )
