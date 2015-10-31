@@ -95,6 +95,7 @@ void gauss_eliminate_using_sse(const Matrix matA, Matrix matU)       /* Write co
 	unsigned int num_elements = matA.num_columns;
 	float *A = matA.elements, *U = matU.elements; 
 	unsigned int num_elem_loop_bound = num_elements / NUM_FLOAT_PER_REG;
+	unsigned int num_elem_loop_bound_sq = num_elements * num_elements / NUM_FLOAT_PER_REG;
 	__m128 temp, temp2;
 	__m128 *num;
 	__m128 *op1, *op2;
@@ -103,11 +104,15 @@ void gauss_eliminate_using_sse(const Matrix matA, Matrix matU)       /* Write co
 		printf("Invalid inputs.\n");
 		return;
 	}
+	float *tempU = U;
+	float *tempA = A;
+	for ( i = 0; i < num_elem_loop_bound_sq; i++ )
+	{
+		_mm_store_ps(tempU, _mm_load_ps(tempA));
+		tempU+=NUM_FLOAT_PER_REG;
+		tempA+=NUM_FLOAT_PER_REG;
+	}
 	
-    for ( i = 0; i < num_elements; i++ )
-        for ( j = 0; j < num_elements; j++ )
-            U[num_elements * i + j] = A[num_elements*i + j];		
-
     for ( k = 0; k < num_elements; k++ )
 	{   
 		int tempJ = k + 1;
