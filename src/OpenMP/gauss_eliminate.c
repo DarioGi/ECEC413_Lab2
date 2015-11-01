@@ -1,6 +1,9 @@
 /* Gaussian elimination code.
 * Author: Naga Kandasamy, 10/24/2015
 *
+* Modified by: Darius Remeika (dr542) and Hardip Sahota (hs452)
+* Modified on: 10/30/2015
+*
 * Compile as follows: 
 * gcc -o gauss_eliminate gauss_eliminate.c compute_gold.c -fopenmp -std=c99 -O3 -lm
 */
